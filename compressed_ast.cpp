@@ -1,13 +1,5 @@
-// compressed_ast.cpp
+// compressed_ast.cpp : Diese Datei enthält die Funktion "main". Hier beginnt und endet die Ausführung des Programms.
 //
-// MIT License
-//
-// Copyright (c) 2020 Tomas Prerovsky
-//
-//
-//
-//
-
 
 #include <iostream>
 #include <string>
@@ -54,10 +46,12 @@ struct ast_t{
 	bool mutable inside_type = false;
 	size_t mutable type_idx = 0;
 
+	static bool is_composite(std::atomic_uint16_t code) { return code & 0x8000; }
+
 	bool get(std::uint16_t & elem_type, char** data, size_t& len) const {
 		if (current_data_beg_ <= cur_ofs_) return false;
 		std::uint16_t code = elem_type = TAG_EOF;
-		for (; cur_type_ofs_ < current_type_len_; ++cur_type_ofs_) {
+		for (; cur_type_ofs_ < current_type_len_; cur_type_ofs_+= sizeof(std::uint16_t)) {
 			code = *(std::uint16_t*)(type_info_ + cur_type_ofs_);
 			if (code & 0x8000) {
 				auto ngram_code = code & 0x7FFF;
@@ -65,7 +59,7 @@ struct ast_t{
 					++type_idx;
 					auto t = ngrams[codes2ngrams[ngram_code] + type_idx];
 					if (t == TAG_EOF) {
-						cur_type_ofs_  += sizeof(std::uint16_t);
+						//cur_type_ofs_  += sizeof(std::uint16_t);
 						inside_type = false;
 						continue;
 					}
@@ -181,12 +175,20 @@ struct ast_t{
 };
 
 std::ostream& operator << (std::ostream& os, ast_t& ast) {
-	std::uint16_t type;
-	std::size_t len;
-	char* data;
+	auto handle_simple_types = [&](std::uint16_t type,char* data, std::size_t len) {
+		if (type == ast_t::TAG_INT32) os << *(std::int32_t*) data;
+		else if (type == ast_t::TAG_DOUBLE) os << *(double*)data;
+		else if (type == ast_t::TAG_ASCII) os << data + sizeof(std::size_t);
+	};
+	std::uint16_t type; std::size_t len; char* data;
 	ast.reset();
 	for (; ast.get(type, &data, len);) {
-		if (type == ast_t::TAG_INT32) os << *(std::int32_t*) data;
+		std::cout << "#" << type <<"#\n";
+		if (!ast_t::is_composite(type))
+			handle_simple_types(type,data,len);
+		else {
+			std::cerr << "?";
+		}
 		os << "\n";
 	}
 	return os;
@@ -204,6 +206,8 @@ void print_debug_info(std::ostream& os, ast_t const& ast) {
 		if (i + 1 != ast.current_data_beg_) os << ",";
 	}
 	os << ")";
+	os << "ngrams:\n";
+	for (auto const& e : ast.ngrams) os << e << ",";
 }
 
 int main()
