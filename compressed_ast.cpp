@@ -5,8 +5,15 @@
 #include <string>
 #include <unordered_set>
 #include <unordered_map>
+#include <vector>
+#include <cstdint>
+#include <stdint.h>
+#include <atomic>
+#include <cstring>
+#include <map>
 
 struct ast_t{
+	using basic_tag_t = unsigned short; 
 	char* data_ = nullptr;
 	char* type_info_ = nullptr;
 
@@ -19,26 +26,32 @@ struct ast_t{
 
 	std::size_t type_info_cur_ = 0;
 
-	std::basic_string<std::uint16_t> run_;
-	std::unordered_map<std::basic_string<std::uint16_t>, std::uint16_t > lookup_;
+	std::basic_string<basic_tag_t> run_;
+	struct hasher{
+		std::hash<std::u16string> internal_hasher_;
+		std::size_t operator()(const std::basic_string<basic_tag_t> & s) const {
+		  return internal_hasher_( (std::u16string::value_type*) s.data());
+		}
+	};
+	std::unordered_map<std::basic_string<basic_tag_t>, basic_tag_t,hasher> lookup_;
 
-	static constexpr std::uint16_t TAG_EOF    = 0;
+	static constexpr basic_tag_t TAG_EOF    = 0;
 
-	static constexpr std::uint16_t TAG_INT32  = 1;
-	static constexpr std::uint16_t TAG_DOUBLE = 2;
-	static constexpr std::uint16_t TAG_ASCII  = 4;
-	static constexpr std::uint16_t TAG_INT64  = 8;
-	static constexpr std::uint16_t TAG_INT16  = 16;
+	static constexpr basic_tag_t TAG_INT32  = 1;
+	static constexpr basic_tag_t TAG_DOUBLE = 2;
+	static constexpr basic_tag_t TAG_ASCII  = 4;
+	static constexpr basic_tag_t TAG_INT64  = 8;
+	static constexpr basic_tag_t TAG_INT16  = 16;
 
-	static constexpr std::uint16_t TAG_DOWN = 32;
-	static constexpr std::uint16_t TAG_UP   = 64;
-	static constexpr std::uint16_t TAG_L_DOWN   = 128;
-	static constexpr std::uint16_t TAG_L_UP     = 256;
+	static constexpr basic_tag_t TAG_DOWN = 32;
+	static constexpr basic_tag_t TAG_UP   = 64;
+	static constexpr basic_tag_t TAG_L_DOWN   = 128;
+	static constexpr basic_tag_t TAG_L_UP     = 256;
 
 
 	std::uint16_t ngram_counter_ = 0;
 
-	mutable std::vector<std::uint16_t> ngrams;
+	mutable std::vector<basic_tag_t> ngrams;
 	mutable std::vector<std::size_t> codes2ngrams;
 
 	size_t mutable cur_ofs_ = 0;
@@ -46,7 +59,12 @@ struct ast_t{
 	bool mutable inside_type = false;
 	size_t mutable type_idx = 0;
 
-	static bool is_composite(std::atomic_uint16_t code) { return code & 0x8000; }
+	ast_t(char* data, char* type_info, std::size_t data_size, std::size_t type_info_size): data_{data}, type_info_{type_info}, data_size_{data_size},type_size_{type_info_size}
+	{
+	
+	}
+
+	static bool is_composite(basic_tag_t code) { return code & 0x8000; }
 
 	std::size_t max_ngram_len()  {
 		size_t r = 0;
