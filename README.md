@@ -2,11 +2,11 @@
 
 Overall Problem: To store not strictly typed Abstract Syntax Trees efficiently, i.e. access to data is easy and fast for current processor designs and cache architectures, and
 with minimal redundancy, i.e. compression of structural/type information. 
-What means "not strictly type": No a priori type scheme, in XML slang: no schema.
+What means "not strictly typed": No a priori type scheme, in XML slang: no schema.
 
 Example:
 
-Assume json-message which includes a list of points:
+Assume a json-message which includes a list of points:
 
 msg = {
  "points" : [ 
@@ -16,26 +16,26 @@ msg = {
  ]
 }
 
-The actual data is |1.0|2.0|3.0|4.0|5.0|6.0| (|Double| 64 bits wide) .
+The actual data is |1.0|2.0|3.0|4.0|5.0|6.0| (where |Double| means a 64 bits wide word) .
 That's the way a compiler with knowledge of the structure __msg__ would store the data.
 
-Without knowing the structure of __msg__ in advance - imagine a generic JSON-Library which has to strore the data in an accessible way - we are forced to
+Without knowing the structure of __msg__ in advance - imagine a generic JSON-Library which has to store the data in a way that allows for programmatic access - we are forced to
 store structural information together with the actual data, i.e. types and field names:
 
 |"Points"||Type:List||Count:3||OBJECT START||FIELD||"x"||Float||1.0||FIELD||"y"||Float||2.0||OBJECT END||OBJECT START| ... etc.
 
-Way longer than the former representation.
+This is way longer than the former representation.
 
 Strategy: Separate Data ( the |1.0|2.0|3.0|4.0|5.0|6.0| ) from the structural information ( |OBJECT START||FIELD||"x"||Float| etc.). Store the
-former like a compiler would - aligned data. Compress the other. Compression scheme below.
+former like a compiler would - as a sequence of properly aligned fields. Compress the former. Compression scheme below.
   
 Compression of ASTs: Multilevel LZW compression of structural information.
 
 Example encoding of __msg__:
 
-Data segment: |1.0|2.0|3.0|4.0|5.0|6.0|
+__Data Segment__: |1.0|2.0|3.0|4.0|5.0|6.0|
 
-Encoding of the structural information:
+Encoding of the __structural information__ (Type Segment):
 
 1. __msg__ has the folowing (uncompressed structure, D means DOWN, U means UP : D starts an object U ends it):
 
@@ -54,7 +54,7 @@ Encoding of the structural information:
  &nbsp;U <br/>
 U <br/>
 
-The structure is (the data is stored in separately):
+The structure is (the data is stored separately):
 
 "points" D <br/>
  &nbsp;D <br/>
@@ -71,7 +71,7 @@ The structure is (the data is stored in separately):
  &nbsp;U <br/>
 U <br/>
 
-2. Recursively (starting with the leafs, going upwards) apply ngram - detection and RLE compression:  
+2. Recursively (starting with the leaves, going upwards(postorder traversal) ) apply dictionary- and RLE-compression:  
 
  "x" | <br/>
  "y" |==> N1 <br/>
