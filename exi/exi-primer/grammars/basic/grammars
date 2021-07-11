@@ -1,0 +1,171 @@
+kind exi_grammar_symbol;
+kind exi_grammar;
+exi_grammar_symbol star, EE, AT, SE, CH;
+exi_grammar exi, ext_exi;
+
+
+grammar{
+ exi;
+ head{Document;};
+ production{ SD; DocContent;                 idx{0;};};
+};
+
+grammar{
+ exi;
+ head{DocContent;};
+ production{ SE(star); DocEnd;               idx{0;};};
+};
+
+grammar{
+ exi;
+ head{StartTagNotebook;};
+ production{ EE;                             idx{0;0;};};
+ production{ AT(star); StartTagNotebook;     idx{0;1;};};
+ production{ SE(star); ElementNotebook;      idx{0;2;};};
+ production{ CH; ElementNotebook;            idx{0;3;};};
+};
+
+grammar{
+ ext_exi;
+ head{StartTagNotebook;};
+ production{ AT(date); StartTagNotebook;     idx{0;};};
+ production{ EE;                             idx{1;0;};};
+ production{ AT(star); StartTagNotebook;     idx{1;1;};};
+ production{ SE(star); ElementNotebook;      idx{1;2;};};
+ production{ CH; ElementNotebook;            idx{1;3;};};
+};
+
+
+grammar{
+ exi;
+ head{StartTagNote;};
+ production{ EE;                             idx{0;0;};};
+ production{ AT(star); StartTagNote;         idx{0;1;};};
+ production{ SE(star); ElementNote;          idx{0;2;};};
+ production{ CH; ElementNote;                idx{0;3;};};
+};
+
+grammar{
+ ext_exi;
+ head{StartTagNote;};
+ production{ AT(category); StartTagNote;     idx{0;};};
+ production{ EE;                             idx{1;0;};};
+ production{ AT(star); StartTagNote;         idx{1;1;};};
+ production{ SE(star); ElementNote;          idx{1;2;};};
+ production{ CH; ElementNote;                idx{1;3;};};
+};
+
+
+grammar{
+ ext_exi;
+ head{StartTagNote;};
+ production{ AT(date); StartTagNote;         idx{0;};};
+ production{ AT(category); StartTagNote;     idx{1;};};
+ production{ EE;                             idx{2;0;};};
+ production{ AT(star); StartTagNote;         idx{2;1;};};
+ production{ SE(star); ElementNote;          idx{2;2;};};
+ production{ CH; ElementNote;                idx{2;3;};};
+};
+
+grammar{
+ exi;
+ head{StartTagSubject;};
+ production{ EE;                             idx{0;0;};};
+ production{ AT(star); StartTagSubject;      idx{0;1;};};
+ production{ SE(star); ElementSubject;       idx{0;2;};};
+ production{ CH; ElementSubject;             idx{0;3;};};
+};
+
+grammar{
+ exi;
+ head{ElementSubject;};
+ production{EE;                              idx{0;};};
+ production{SE(star); ElementSubject;        idx{1;0;};};
+ production{CH; ElementSubject;              idx{1;1;};};
+};
+
+grammar{
+ exi;
+ head{ElementNote;};
+ production{EE;                              idx{0;};};
+ production{SE(star); ElementNote;           idx{1;0;};};
+ production{CH; ElementNode;                 idx{1;1;};};
+};
+
+grammar{
+ exi;
+ head{StartTagBody};
+ production{EE;                              idx{0;0;};};
+ production{AT(star); StartTagBody;          idx{0;1;};};
+ production{SE(star); ElementBody;           idx{0;2;};};
+ production{CH; ElementBody;                 idx{0;3;};}; 
+};
+
+grammar{
+ exi;
+ head{ElementBody;};
+ production{EE;                              idx{0;};};
+ production{SE(star); ElementBody;           idx{1;0;};};
+ production{EE; ElementBody;                 idx{0;};};
+};
+
+grammar{
+ ext_exi;
+ head{ElementNote;};
+ production{SE(body); ElementNote;           idx{0;};};
+ production{EE;                              idx{1;};};
+ production{SE(star); ElementNote;           idx{2;0;};};
+ production{CH; ElementNode;                 idx{2;1;};};
+};
+
+grammar{
+ exi;
+ head{ElementNotebook;};
+ production{EE;                              idx{0;};};
+ production{SE(star); ElementNotebook;       idx{1;0;};};
+ production{EE; ElementNotebook;             idx{0;};};
+};
+
+grammar{
+ ext_exi;
+ head{StartTagNote;};
+ production{ SE(subject); ElementNote;       idx{0;};};
+ production{ AT(date); StartTagNote;         idx{1;};};
+ production{ AT(category); StartTagNote;     idx{2;};};
+ production{ EE;                             idx{3;0;};};
+ production{ AT(star); StartTagNote;         idx{3;1;};};
+ production{ SE(star); ElementNote;          idx{3;2;};};
+ production{ CH; ElementNote;                idx{3;3;};};
+};
+
+grammar{
+ ext_exi;
+ head{StartTagSubject;};
+ production{ CH; ElementSubject;             idx{0;};};
+ production{ EE;                             idx{1;0;};};
+ production{ AT(star); StartTagSubject;      idx{1;1;};};
+ production{ SE(star); ElementSubject;       idx{1;2;};};
+ production{ CH; ElementSubject;             idx{1;3;};};
+};
+
+grammar{
+ ext_exi;
+ head{StartTagBody};
+ production{CH; ElementBody;                 idx{0;};}; 
+ production{EE;                              idx{1;0;};};
+ production{AT(star); StartTagBody;          idx{1;1;};};
+ production{SE(star); ElementBody;           idx{1;2;};};
+ production{CH; ElementBody;                 idx{1;3;};}; 
+};
+
+grammar{
+ exi;
+ head{DocEnd;};
+ production{ED; idx{0;};};
+};
+
+
+
+
+
+
