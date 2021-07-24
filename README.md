@@ -1,4 +1,4 @@
-# Compressed AST
+# Compressed AST - *very* experimental
 
 Overall Problem: To store not strictly typed Abstract Syntax Trees efficiently, i.e. access to data is easy and fast for current processor designs and cache architectures, and
 with minimal redundancy, i.e. compression of structural/type information. 
@@ -37,7 +37,7 @@ __Data Segment__: |1.0|2.0|3.0|4.0|5.0|6.0|
 
 Encoding of the __structural information__ (Type Segment):
 
-1. __msg__ has the folowing (uncompressed structure, D means DOWN, U means UP : D starts an object U ends it):
+1. __msg__ has the following (uncompressed structure, D means DOWN, U means UP : D starts an object U ends it):
 
 "points" D <br/>
  &nbsp;D <br/>
