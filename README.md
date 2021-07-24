@@ -27,7 +27,7 @@ store structural information together with the actual data, i.e. types and field
 This is way longer than the former representation.
 
 Strategy: Separate Data ( the |1.0|2.0|3.0|4.0|5.0|6.0| ) from the structural information ( |OBJECT START||FIELD||"x"||Float| etc.). Store the
-former like a compiler would - as a sequence of properly aligned fields. Compress the former. Compression scheme below.
+former like a compiler would - as a sequence of properly aligned fields. Compress the latter. Compression scheme below.
   
 Compression of ASTs: Multilevel LZW compression of structural information.
 
